@@ -13,14 +13,37 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import rs.FB.Token;
 import rs.FB.dao.UserDAO;
+import rs.FB.model.Credentials;
 import rs.FB.model.User;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ServiceUser {
 	UserDAO ud=new UserDAO();
+	
+	@POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Token getUser(Credentials credentials){
+        if (ud.getUser(credentials.getEmail(), credentials.getPassword())!= null) {
+            Token t = new Token(Jwts.builder()
+                    .setSubject("credentials.getEmail()")
+                    .signWith(SignatureAlgorithm.HS512, "dzivi")
+                    .compact(), String.valueOf(ud.getUser(credentials.getEmail(), credentials.getPassword()).getUserID()) );
+        
+            return t;
+        }else{
+
+    return null;
+        }
+	}
+    
+    
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -39,6 +62,7 @@ public class ServiceUser {
 	return user;
     }
 	@POST
+	 @Path("/add") 
 	
 	public void insertUser(User user){
 		ud.insertUser(user);
